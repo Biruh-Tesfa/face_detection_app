@@ -1,4 +1,5 @@
 import React from "react";
+import API_URL from "../api";
 
 class Register extends React.Component{
    constructor(props) {
@@ -20,7 +21,7 @@ onNameChange = (event)=>{
   this.setState({name:event.target.value})
 }
 onSubmitRegister =()=>{
-  fetch('http://localhost:3000/register',{
+  fetch(`${API_URL}/register`,{
     method:'post',
     headers:{'Content-Type' : 'application/json'},
     body:JSON.stringify({

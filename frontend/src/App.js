@@ -9,6 +9,7 @@ import SignIn from './component/SignIn.js';
 import Register from './component/Register.js';
 import Particles from "react-particles";
 import { loadSlim } from "tsparticles-slim";
+import API_URL from "./api";
 
 class App extends React.Component {
   constructor() {
@@ -78,7 +79,7 @@ class App extends React.Component {
   }
 setImageDisplayed = (value) => {
   this.setState({ imageDisplayed: value });
-        fetch('http://localhost:3000/image',{
+        fetch(`${API_URL}/image`,{
         method:'put',
         headers:{'Content-Type' : 'application/json'},
         body:JSON.stringify({

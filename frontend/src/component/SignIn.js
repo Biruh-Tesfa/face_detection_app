@@ -1,5 +1,6 @@
 // src/component/SignIn.js
 import React from "react";
+import API_URL from "../api";
 
 class SignIn extends React.Component {
 
@@ -18,7 +19,7 @@ onPasswordChange = (event)=>{
   this.setState({signinPassword:event.target.value})
 }
 onSubmitSignin =()=>{
-  fetch('http://localhost:3000/signin',{
+  fetch(`${API_URL}/signin`,{
     method:'post',
     headers:{'Content-Type' : 'application/json'},
     body:JSON.stringify({
