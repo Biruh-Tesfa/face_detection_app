@@ -1,104 +1,110 @@
 require("dotenv").config();
-const express = require('express');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const cors = require('cors');
-const knex = require('knex');
 
+const express = require("express");
+const bcrypt = require("bcrypt");
+const cors = require("cors");
+const knex = require("knex");
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is required.");
+}
 
 const db = knex({
   client: "pg",
   connection: process.env.DATABASE_URL,
 });
 
-const app=express();
-app.use(cors())
-app.use(express.json())
-// app.use(express.urlencoded({extended:true}))  FOR HTML REQUIST
-
-app.post('/register',(req,res)=>{
- const {name,email,password}=req.body;
-
-// bcrypt.hash(password, 10, (err, hash) => {
-//   if (err) {return res.status(500).json("Error hashing password");}
-//    console.log(hash);  });
-const hash = bcrypt.hashSync(password,10); // synchronous
-
-  db.transaction(trx=>{
-    trx.insert({
-      hash:hash,
-      email:email
-    })
-    .into('login')
-    .returning('email')
-    .then(loginEmail=>{
-         return trx('users')
-        .returning('*')
-        .insert({
-              name:name,
-              email:loginEmail[0].email,
-              joined: new Date(),
-         })
-        .then( user=>  res.json(user[0]) ) 
-     })
-    .then(()=>trx.commit())
-    .catch(()=>trx.rollback());
-  })
-      .catch(err=>res.status(400).json("unable to register"));
-    })
-
-app.post('/signin',(req,res)=>{
- const {email,password}=req.body;
-
-// bcrypt.compare("bannana", hash, (err, result) => {
-//   if (err) throw err;
-//   console.log("First comparison:", result); //(Asynchronous) true if "bannana" was the original password
-// });
-db.select('email','hash').from('login')
-.where('email','=',email)
-.then(data=>{
-  const isvalid = bcrypt.compareSync(password,data[0].hash);
-  if(isvalid){
-    return db.select('*').from('users')
-      .where('email','=',email)
-      .then(user=>{
-          res.json(user[0])
-        })
-      .catch(err=> res.status(400).json('unable to get user'))
-    } else {
-     res.status(400).json('wrong credentials')
-    }
-  })
-   .catch(err=> res.status(400).json('wrong credentials'))
-})
-
-app.get('/profile/:id',(req,res)=>{
-	const{id}=req.params;
-
-db.select('*').from('users').where({
-      id:id  // 'ID','=',ID WITHOUT {}
-  }).then(response=>{
-  	if(response.length){
-  	 res.json(response)
-  	}else{
-  		res.status(400).json("no such user")
-  	}
-  })   
-})
-
-app.put('/image',(req,res)=>{
-
-const { id } = req.body;
-
-  db('users').where('id','=',id)
-  .increment('entrie',1)
-  .returning('entrie')
-  .then(response=>{res.json(response[0].entrie)})
-  .catch(err=>{res.status(400).json("no such user")})   
-})
-
+const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(
+  cors({
+    origin: process.env.CLIENT_ORIGIN,
+  })
+);
+app.use(express.json());
+
+app.get("/health", async (_req, res) => {
+  try {
+    await db.raw("SELECT 1");
+    res.status(200).json({ status: "ok" });
+  } catch {
+    res.status(503).json({ status: "database unavailable" });
+  }
+});
+
+app.post("/register", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    const user = await db.transaction(async (trx) => {
+      const hash = await bcrypt.hash(password, 10);
+
+      const [login] = await trx("login")
+        .insert({ email, hash })
+        .returning("email");
+
+      const [createdUser] = await trx("users")
+        .insert({
+          name,
+          email: login.email,
+          joined: new Date(),
+        })
+        .returning("*");
+
+      return createdUser;
+    });
+
+    res.json(user);
+  } catch {
+    res.status(400).json("unable to register");
+  }
+});
+
+app.post("/signin", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const [login] = await db("login")
+      .select("email", "hash")
+      .where("email", email);
+
+    if (!login || !(await bcrypt.compare(password, login.hash))) {
+      return res.status(400).json("wrong credentials");
+    }
+
+    const [user] = await db("users").select("*").where("email", email);
+    res.json(user);
+  } catch {
+    res.status(400).json("wrong credentials");
+  }
+});
+
+app.get("/profile/:id", async (req, res) => {
+  try {
+    const [user] = await db("users").select("*").where("id", req.params.id);
+
+    if (!user) return res.status(404).json("no such user");
+    res.json(user);
+  } catch {
+    res.status(400).json("unable to get user");
+  }
+});
+
+app.put("/image", async (req, res) => {
+  try {
+    const [user] = await db("users")
+      .where("id", req.body.id)
+      .increment("entrie", 1)
+      .returning("entrie");
+
+    if (!user) return res.status(404).json("no such user");
+    res.json(user.entrie);
+  } catch {
+    res.status(400).json("no such user");
+  }
+});
+
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Backend running on port ${port}`);
+  console.log(`API running on port ${port}`);
 });
