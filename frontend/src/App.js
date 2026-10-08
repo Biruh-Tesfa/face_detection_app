@@ -20,6 +20,7 @@ class App extends React.Component {
       triggerDetect: false,
       imageDisplayed:false,
       route:'SignIn',
+      imageUrlError: "",
       user:{
         id:"",
         name:"",
@@ -53,15 +54,26 @@ class App extends React.Component {
   onInputChange = (event) => {
     this.setState({ 
       input: event.target.value,
-      triggerDetect: false 
+      triggerDetect: false,
+      imageUrlError: "" 
     });
   };
+  onKeyDown = (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    this.onButtonSubmit();
+  }
+};
   onButtonSubmit = () => {
     try {
       new URL(this.state.input);
-      this.setState({ imageURL: this.state.input, triggerDetect: true });
+      this.setState({ imageURL: this.state.input, triggerDetect: true,imageUrlError: "" });
     } catch {
-      alert("Please enter a valid image URL.");
+      this.setState({
+      imageURL: "",
+      triggerDetect: false,
+      imageUrlError: "Please enter a valid image URL."
+    });
     }
   }
  onRouteChange = (event) => {
@@ -71,6 +83,7 @@ class App extends React.Component {
       imageURL: '',
       triggerDetect: false,
       imageDisplayed: false,
+      imageUrlError: '',
       route: 'SignIn',
       user: {
         id: "",
@@ -139,6 +152,8 @@ setImageDisplayed = (value) => {
                 <ImageLinkForm
                   onInputeChange={this.onInputChange}
                   onbuttonclick={this.onButtonSubmit}
+                  onKeyDown={this.onKeyDown}
+                  imageUrlError={this.state.imageUrlError}
                 />
                 <Photo setImageDisplayed={this.setImageDisplayed} imageURL={this.state.imageURL} triggerDetect={this.state.triggerDetect} />
              </div>

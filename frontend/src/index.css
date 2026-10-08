@@ -11,7 +11,7 @@ body {
 
 .box {
   border: 1px solid gray;
-  width: 60%;
+  width: 64%;
   height: 75px;
   margin: auto;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);

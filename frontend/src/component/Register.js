@@ -22,6 +22,12 @@ onPasswordChange = (event)=>{
 onNameChange = (event)=>{
   this.setState({name:event.target.value,error: ""})
 }
+onKeyDown = (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    this.onSubmitRegister();
+  }
+};
 onSubmitRegister =()=>{
   if (this.state.loading) {
       return;
@@ -117,6 +123,7 @@ render() {
                 </label>
                 <input
                   onChange={this.onNameChange}
+                  onKeyDown={this.onKeyDown}
                   className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="text"
                   name="Name"
@@ -132,6 +139,7 @@ render() {
                 </label>
                 <input
                   onChange={this.onEmailChange}
+                  onKeyDown={this.onKeyDown}
                   className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="email"
                   name="email-address"
@@ -147,6 +155,7 @@ render() {
                 </label>
                 <input
                   onChange={this.onPasswordChange}
+                  onKeyDown={this.onKeyDown}
                   className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="password"
                   name="password"

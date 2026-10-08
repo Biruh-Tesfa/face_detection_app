@@ -1,6 +1,6 @@
 import React from "react";
 
-function ImageLinkForm({ onInputeChange, onbuttonclick }) {
+function ImageLinkForm({imageUrlError, onInputeChange, onbuttonclick,onKeyDown }) {
   return (
     <div>
       <p className="tc f3">
@@ -13,13 +13,19 @@ function ImageLinkForm({ onInputeChange, onbuttonclick }) {
             type="text"
             placeholder="Paste image URL here..."
             onChange={onInputeChange}
+            onKeyDown={onKeyDown}
           />
           <button
-            className=" br2 ba b--purple pa2 grow link ph3 white bg-light-purple w-15 pointer ml2"
+            className="ph0 br2 ba b--purple pa2 grow link  white bg-light-purple w-15 pointer ml2"
             onClick={onbuttonclick}
           >
             Detect
           </button>
+          {imageUrlError && (
+            <p id="image-url-error" className="b red f4 mt4 " role="alert">
+              {imageUrlError}
+            </p>
+          )}
         </div>
       </div>
     </div>

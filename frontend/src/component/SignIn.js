@@ -26,6 +26,12 @@ onPasswordChange = (event)=>{
     error: ""
   })
 }
+onKeyDown = (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    this.onSubmitSignin();
+  }
+};
 onSubmitSignin =()=>{
   if (this.state.loading) {
       return;
@@ -126,6 +132,7 @@ onSubmitSignin =()=>{
                   id="email"
                   value={signinEmail}
                   onChange={this.onEmailChange}
+                  onKeyDown={this.onKeyDown}
                   disabled={loading}
                 />
               </div>
@@ -141,6 +148,7 @@ onSubmitSignin =()=>{
                   id="password"
                   value={signinPassword}
                   onChange={this.onPasswordChange}
+                  onKeyDown={this.onKeyDown}
                   disabled={loading}
                 />
               </div>
