@@ -68,7 +68,7 @@ function Photo({ imageURL, triggerDetect,setImageDisplayed }) {
             src={imageURL}
             alt="Target"
             crossOrigin="anonymous"
-            width="500px"
+            width="420px"
             height="auto"
             onLoad={() => setImageDisplayed(true)}   // ✅ triggers when image loads
             onError={() => setImageDisplayed(false)} // optional: reset if invalid URL

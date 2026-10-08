@@ -15,7 +15,7 @@ function Tilt({ options, children }) {
 
   return (
     <div ref={tiltRef} 
-      style={{ height: "150px", width: "150px",marginTop:"15px"}}>
+      style={{ height: "120px", width: "100px",marginTop:"15px"}}>
       {children}
     </div>
   );

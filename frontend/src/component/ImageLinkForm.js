@@ -15,7 +15,7 @@ function ImageLinkForm({ onInputeChange, onbuttonclick }) {
             onChange={onInputeChange}
           />
           <button
-            className="br2 ba b--purple pa2 grow link ph3 white bg-light-purple w-15 pointer ml2"
+            className=" br2 ba b--purple pa2 grow link ph3 white bg-light-purple w-15 pointer ml2"
             onClick={onbuttonclick}
           >
             Detect

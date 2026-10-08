@@ -9,7 +9,7 @@ function Logo() {
         <img 
           className="shadow-2"
           src={Log} alt="log" 
-          style={{background:"linear-gradient(to right, #FF5EDF 0%, #04C8DE 100%)", width: "100px", height: "100px",borderRadius:"7px",padding:"20px",marginLeft:"30px"}} />
+          style={{background:"linear-gradient(to right, #FF5EDF 0%, #04C8DE 100%)", width: "60px", height: "60px",borderRadius:"7px",padding:"20px",marginLeft:"30px"}} />
       </div>
     </Tilt>
   );
