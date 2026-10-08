@@ -64,9 +64,26 @@ class App extends React.Component {
       alert("Please enter a valid image URL.");
     }
   }
-  onRouteChange = (event)=>{
-    this.setState({route:event})
+ onRouteChange = (event) => {
+  if (event === "SignIn") {
+    this.setState({
+      input: '',
+      imageURL: '',
+      triggerDetect: false,
+      imageDisplayed: false,
+      route: 'SignIn',
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        entrie: 0,
+        joined: "",
+      }
+    });
+  } else {
+    this.setState({ route: event });
   }
+}
   loadUser =(data)=>{
     this.setState({ user:{
         id:data.id,
@@ -79,6 +96,10 @@ class App extends React.Component {
   }
 setImageDisplayed = (value) => {
   this.setState({ imageDisplayed: value });
+  
+    if (!value || !this.state.triggerDetect) {
+    return;
+  }
         fetch(`${API_URL}/image`,{
         method:'put',
         headers:{'Content-Type' : 'application/json'},
