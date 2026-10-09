@@ -1,6 +1,9 @@
 import React from "react";
 
-function ImageLinkForm({imageUrlError, onInputeChange, onbuttonclick,onKeyDown }) {
+function ImageLinkForm({detecting, imageUrlError, onInputeChange, onbuttonclick,onKeyDown }) {
+  const isDetecting = detecting === "detecting";
+  const isDetected = detecting === "detected";
+  const isDisabled = isDetecting || isDetected;
   return (
     <div>
       <p className="tc f3">
@@ -16,11 +19,17 @@ function ImageLinkForm({imageUrlError, onInputeChange, onbuttonclick,onKeyDown }
             onKeyDown={onKeyDown}
           />
           <button
-            className="ph0 br2 ba b--purple pa2 grow link  white bg-light-purple w-15 pointer ml2"
+            className="ph0 br2 ba b--purple pa2 grow link white bg-light-purple w-15 pointer ml2"
             onClick={onbuttonclick}
+            disabled={isDisabled}
+            style={{
+              opacity: isDisabled ? 0.7 : 1,
+              cursor: isDisabled ? "not-allowed" : "pointer"
+            }}
           >
-            Detect
+            {isDetecting ? "Detecting..." : "Detect"}
           </button>
+          
           {imageUrlError && (
             <p id="image-url-error" className="b red f4 mt4 " role="alert">
               {imageUrlError}

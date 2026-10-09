@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as faceapi from "face-api.js";
 
-function Photo({ imageURL, triggerDetect,setImageDisplayed }) {
+function Photo({ imageURL, triggerDetect,setImageDisplayed,setDetectionStatus,setDetectionError }) {
   const imgRef = useRef(null);
   const [boxes, setBoxes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,11 +19,15 @@ function Photo({ imageURL, triggerDetect,setImageDisplayed }) {
     };
     loadModels();
   }, []);
-
+useEffect(() => {
+  setBoxes([]);
+}, [imageURL]);
   useEffect(() => {
     const detectFaces = async () => {
       if (modelsLoaded && imgRef.current && imageURL && triggerDetect) {
+        setBoxes([]);
         setLoading(true);
+        setDetectionStatus("detecting");
         try {
           const detections = await faceapi.detectAllFaces(
             imgRef.current,
@@ -49,15 +53,19 @@ function Photo({ imageURL, triggerDetect,setImageDisplayed }) {
           });
 
           setBoxes(scaledBoxes);
+          setDetectionStatus("detected");
         } catch (err) {
           console.error("Detection error:", err);
+          setBoxes([]);
+          setDetectionError("Face detection failed. Please try again.");
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
       }
     };
 
     detectFaces();
-  }, [imageURL, modelsLoaded, triggerDetect]);
+  }, [imageURL, modelsLoaded, triggerDetect, setDetectionStatus,setDetectionError]);
 
   return (
     <div className="tc mt2">
@@ -70,8 +78,7 @@ function Photo({ imageURL, triggerDetect,setImageDisplayed }) {
             crossOrigin="anonymous"
             width="420px"
             height="auto"
-            onLoad={() => setImageDisplayed(true)}   // ✅ triggers when image loads
-            onError={() => setImageDisplayed(false)} // optional: reset if invalid URL
+            onLoad={() => setImageDisplayed(true)}   //  triggers when image loads
           />
         )}
         {boxes.map((box, i) => (

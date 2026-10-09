@@ -21,6 +21,7 @@ class App extends React.Component {
       imageDisplayed:false,
       route:'SignIn',
       imageUrlError: "",
+      detecting: "detect",
       user:{
         id:"",
         name:"",
@@ -55,7 +56,8 @@ class App extends React.Component {
     this.setState({ 
       input: event.target.value,
       triggerDetect: false,
-      imageUrlError: "" 
+      imageUrlError: "",
+      detecting: "detect" 
     });
   };
   onKeyDown = (event) => {
@@ -65,14 +67,26 @@ class App extends React.Component {
   }
 };
   onButtonSubmit = () => {
+  if (this.state.detecting !== "detect") {
+    return;
+  }
     try {
       new URL(this.state.input);
-      this.setState({ imageURL: this.state.input, triggerDetect: true,imageUrlError: "" });
+      this.setState({ 
+       imageURL: this.state.input,
+       triggerDetect: false,
+       imageUrlError: "",
+       detecting: "detecting",      // start “loading”
+       imageDisplayed: false // reset until image is shown 
+     });
+      this.validateImageURL(this.state.input);
     } catch {
       this.setState({
       imageURL: "",
       triggerDetect: false,
-      imageUrlError: "Please enter a valid image URL."
+      imageDisplayed: false,
+      imageUrlError: "Please enter a valid image URL.",
+      detecting: "detect"
     });
     }
   }
@@ -84,6 +98,7 @@ class App extends React.Component {
       triggerDetect: false,
       imageDisplayed: false,
       imageUrlError: '',
+      detecting: "detect",
       route: 'SignIn',
       user: {
         id: "",
@@ -107,25 +122,71 @@ class App extends React.Component {
       }
     })
   }
+setDetectionStatus = (status) => {
+  this.setState({ detecting: status });
+};
 setImageDisplayed = (value) => {
   this.setState({ imageDisplayed: value });
-  
-    if (!value || !this.state.triggerDetect) {
+
+  if (!value || !this.state.triggerDetect) {
     return;
   }
-        fetch(`${API_URL}/image`,{
-        method:'put',
-        headers:{'Content-Type' : 'application/json'},
-        body:JSON.stringify({
-          id:this.state.user.id
-        })
-  }).then(respons=>respons.json())
-    .then(count=>{
-      if(this.state.imageDisplayed){
-     this.setState( Object.assign(this.state.user,{entrie:count}))
-   }
+
+  fetch(`${API_URL}/image`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: this.state.user.id
+    })
+  })
+    .then((response) => response.json())
+    .then((count) => {
+      this.setState((prevState) => ({
+        user: {
+          ...prevState.user,
+          entrie: count
+        },
+      }));
+    })
+    .catch((error) => {
+      console.error("Error updating entries:", error);
+    });
+};
+setDetectionError = (message) => {
+  this.setState({
+    detecting: "detect",
+    triggerDetect: false,
+    imageURL: "",
+    imageDisplayed: false,
+    imageUrlError: message
   });
-}
+};
+validateImageURL = (url) => {
+  const image = new Image();
+
+  image.onload = () => {
+    this.setState({
+      imageURL: url,
+      triggerDetect: true,
+      imageUrlError: "",
+      detecting: "detecting",
+      imageDisplayed: false
+    });
+  };
+
+  image.onerror = () => {
+    this.setState({
+      imageURL: "",
+      triggerDetect: false,
+      imageUrlError: "Could not load this image. Please check the URL and try again.",
+      detecting: "detect"
+    });
+  };
+
+  image.src = url;
+};
 
  render() {
    return (
@@ -154,8 +215,15 @@ setImageDisplayed = (value) => {
                   onbuttonclick={this.onButtonSubmit}
                   onKeyDown={this.onKeyDown}
                   imageUrlError={this.state.imageUrlError}
+                  detecting={this.state.detecting}
                 />
-                <Photo setImageDisplayed={this.setImageDisplayed} imageURL={this.state.imageURL} triggerDetect={this.state.triggerDetect} />
+                <Photo 
+                 setDetectionError={this.setDetectionError}
+                 setDetectionStatus={this.setDetectionStatus} 
+                 setImageDisplayed={this.setImageDisplayed} 
+                 imageURL={this.state.imageURL} 
+                 triggerDetect={this.state.triggerDetect}
+                />
              </div>
             )   
         }
