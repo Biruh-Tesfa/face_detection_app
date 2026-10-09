@@ -118,7 +118,7 @@ render() {
               )}
 
               <div className="mv3">
-                <label className="db fw6 lh-copy f5" htmlFor="Name">
+                <label className="db fw6 lh-copy f5" htmlFor="name">
                   Name
                 </label>
                 <input
@@ -128,6 +128,7 @@ render() {
                   type="text"
                   name="Name"
                   id="Name"
+                  autoComplete="name"
                   value={name}
                   disabled={loading}
                 />
@@ -144,13 +145,15 @@ render() {
                   type="email"
                   name="email-address"
                   id="email-address"
+                  autoComplete="email"
+                  inputMode="email"
                   value={email}
                   disabled={loading}
                 />
               </div>
 
               <div className="mv3">
-                <label className="db fw6 lh-copy f5" htmlFor="password">
+                <label className="db fw6 lh-copy f5" htmlFor="new-password">
                   Password
                 </label>
                 <input
@@ -160,6 +163,7 @@ render() {
                   type="password"
                   name="password"
                   id="password"
+                  autoComplete="new-password"
                   value={password}
                   disabled={loading}
                 />

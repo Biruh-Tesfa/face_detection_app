@@ -43,3 +43,16 @@ body {
   position: relative;
   display: inline-block;
 }
+.image-container img {
+  display: block;
+  width: 500px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+@media (max-width: 30rem) {
+  .image-container img {
+    width: 100%;
+  }
+}

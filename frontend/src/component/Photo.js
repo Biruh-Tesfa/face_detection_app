@@ -76,8 +76,6 @@ useEffect(() => {
             src={imageURL}
             alt="Target"
             crossOrigin="anonymous"
-            width="420px"
-            height="auto"
             onLoad={() => setImageDisplayed(true)}   //  triggers when image loads
           />
         )}

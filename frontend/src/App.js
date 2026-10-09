@@ -70,16 +70,22 @@ class App extends React.Component {
   if (this.state.detecting !== "detect") {
     return;
   }
-    try {
-      new URL(this.state.input);
+    const rawUrl = this.state.input.trim();
+
+    try { 
+     const parsedUrl = new URL(rawUrl);
+     if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      throw new Error("Unsupported protocol");
+    }
+
       this.setState({ 
-       imageURL: this.state.input,
+       imageURL: "",
        triggerDetect: false,
        imageUrlError: "",
        detecting: "detecting",      // start “loading”
        imageDisplayed: false // reset until image is shown 
      });
-      this.validateImageURL(this.state.input);
+      this.validateImageURL(parsedUrl.href);
     } catch {
       this.setState({
       imageURL: "",
@@ -141,7 +147,12 @@ setImageDisplayed = (value) => {
       id: this.state.user.id
     })
   })
-    .then((response) => response.json())
+    .then((response) => {
+       if (!response.ok) {
+        throw new Error("Failed to update entry count");
+    }
+    return response.json();
+  })
     .then((count) => {
       this.setState((prevState) => ({
         user: {
