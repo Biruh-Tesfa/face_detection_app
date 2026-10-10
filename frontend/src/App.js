@@ -47,6 +47,32 @@ componentDidMount() {
     });
   }
 }
+saveUserToStorage = (user) => {
+  localStorage.setItem("faceUser", JSON.stringify(user));
+};
+getUserFromStorage = () => {
+  try {
+    const savedUser = localStorage.getItem("faceUser");
+
+    if (!savedUser) return null;
+
+    const parsedUser = JSON.parse(savedUser);
+
+    // Basic validation
+    if (parsedUser && parsedUser.id) {
+      return parsedUser;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error reading saved user:", error);
+    localStorage.removeItem("faceUser");
+    return null;
+  }
+};
+removeUserFromStorage = () => {
+  localStorage.removeItem("faceUser");
+};
   particlesInit = async (engine) => {
     await loadSlim(engine);
   };
@@ -134,33 +160,6 @@ componentDidMount() {
     this.setState({ route: event });
   }
 }
-
-saveUserToStorage = (user) => {
-  localStorage.setItem("faceUser", JSON.stringify(user));
-};
-getUserFromStorage = () => {
-  try {
-    const savedUser = localStorage.getItem("faceUser");
-
-    if (!savedUser) return null;
-
-    const parsedUser = JSON.parse(savedUser);
-
-    // Basic validation
-    if (parsedUser && parsedUser.id) {
-      return parsedUser;
-    }
-
-    return null;
-  } catch (error) {
-    console.error("Error reading saved user:", error);
-    localStorage.removeItem("faceUser");
-    return null;
-  }
-};
-removeUserFromStorage = () => {
-  localStorage.removeItem("faceUser");
-};
 
   loadUser =(data)=>{
    const user = {
