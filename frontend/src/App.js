@@ -274,6 +274,7 @@ validateImageURL = (url) => {
                   onKeyDown={this.onKeyDown}
                   imageUrlError={this.state.imageUrlError}
                   detecting={this.state.detecting}
+                  input={this.state.input}
                 />
                 <Photo 
                  setDetectionError={this.setDetectionError}

@@ -19,7 +19,7 @@ function ImageLinkForm({detecting, imageUrlError, onInputeChange, onbuttonclick,
             onKeyDown={onKeyDown}
           />
           <button
-            className="ph0 br2 ba b--purple pa2 grow link white bg-light-purple w-15 pointer ml2"
+            className="f5 ph0 br2 ba b--purple pa2 grow link white bg-light-purple w-15 pointer ml2"
             onClick={onbuttonclick}
             disabled={isDisabled}
             style={{
@@ -27,7 +27,7 @@ function ImageLinkForm({detecting, imageUrlError, onInputeChange, onbuttonclick,
               cursor: isDisabled ? "not-allowed" : "pointer"
             }}
           >
-            {isDetecting ? "Detecting..." : "Detect"}
+            {isDetecting ? "Detecting" : "Detect"}
           </button>
           
           {imageUrlError && (
