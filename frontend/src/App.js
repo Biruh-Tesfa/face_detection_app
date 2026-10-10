@@ -31,7 +31,22 @@ class App extends React.Component {
       }
     };
   }
+componentDidMount() {
+  const savedUser = this.getUserFromStorage();
 
+  if (savedUser) {
+    this.setState({
+      user: {
+        id: savedUser.id,
+        name: savedUser.name,
+        email: savedUser.email,
+        entrie: savedUser.entrie,
+        joined: savedUser.joined
+      },
+      route: "home"
+    });
+  }
+}
   particlesInit = async (engine) => {
     await loadSlim(engine);
   };
@@ -98,6 +113,7 @@ class App extends React.Component {
   }
  onRouteChange = (event) => {
   if (event === "SignIn") {
+    this.removeUserFromStorage();
     this.setState({
       input: '',
       imageURL: '',
@@ -118,15 +134,44 @@ class App extends React.Component {
     this.setState({ route: event });
   }
 }
+
+saveUserToStorage = (user) => {
+  localStorage.setItem("faceUser", JSON.stringify(user));
+};
+getUserFromStorage = () => {
+  try {
+    const savedUser = localStorage.getItem("faceUser");
+
+    if (!savedUser) return null;
+
+    const parsedUser = JSON.parse(savedUser);
+
+    // Basic validation
+    if (parsedUser && parsedUser.id) {
+      return parsedUser;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error reading saved user:", error);
+    localStorage.removeItem("faceUser");
+    return null;
+  }
+};
+removeUserFromStorage = () => {
+  localStorage.removeItem("faceUser");
+};
+
   loadUser =(data)=>{
-    this.setState({ user:{
+   const user = {
         id:data.id,
         name:data.name,
         email:data.email,
         entrie:data.entrie,
         joined:data.joined,
       }
-    })
+    this.setState({user});
+    this.saveUserToStorage(user);
   }
 setDetectionStatus = (status) => {
   this.setState({ detecting: status });
@@ -154,12 +199,14 @@ setImageDisplayed = (value) => {
     return response.json();
   })
     .then((count) => {
-      this.setState((prevState) => ({
-        user: {
+      this.setState((prevState) => {
+       const updatedUser = {
           ...prevState.user,
           entrie: count
-        },
-      }));
+        };
+         this.saveUserToStorage(updatedUser);
+         return { user: updatedUser };
+      });
     })
     .catch((error) => {
       console.error("Error updating entries:", error);
