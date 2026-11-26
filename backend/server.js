@@ -1,4 +1,6 @@
-require("dotenv").config();
+require("dotenv").config({
+  path: require("path").join(__dirname, ".env"),
+});
 
 const express = require("express");
 const bcrypt = require("bcrypt");
@@ -15,7 +17,7 @@ const db = knex({
 });
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.use(
   cors({
@@ -33,20 +35,56 @@ app.get("/health", async (_req, res) => {
   }
 });
 
+// app.post("/register", async (req, res) => {
+//   const { name, email, password } = req.body;
+
+//   try {
+//     const user = await db.transaction(async (trx) => {
+//       const hash = await bcrypt.hash(password, 10);
+
+//       const [login] = await trx("login")
+//         .insert({ email, hash })
+//         .returning("email");
+
+//       const [createdUser] = await trx("users")
+//         .insert({
+//           name,
+//           email: login.email,
+//           joined: new Date(),
+//         })
+//         .returning("*");
+
+//       return createdUser;
+//     });
+
+//     res.json(user);
+//   } catch {
+//     res.status(400).json("unable to register");
+//   }
+// });
 app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
+
+  const cleanName = typeof name === "string" ? name.trim() : "";
+  const cleanEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+
+  if (!cleanName || !cleanEmail || typeof password !== "string" || password.length < 6) {
+    return res.status(400).json({
+      error: "Name, valid email, and a password (at least 6 characters) are required.",
+    });
+  }
 
   try {
     const user = await db.transaction(async (trx) => {
       const hash = await bcrypt.hash(password, 10);
 
       const [login] = await trx("login")
-        .insert({ email, hash })
+        .insert({ email: cleanEmail, hash })
         .returning("email");
 
       const [createdUser] = await trx("users")
         .insert({
-          name,
+          name: cleanName,
           email: login.email,
           joined: new Date(),
         })
@@ -55,9 +93,14 @@ app.post("/register", async (req, res) => {
       return createdUser;
     });
 
-    res.json(user);
-  } catch {
-    res.status(400).json("unable to register");
+    return res.status(201).json(user);
+  } catch (err) {
+    if (err.code === "23505") {
+      return res.status(409).json({ error: "A user with that email already exists." });
+    }
+
+    console.error("Register error:", err);
+    return res.status(500).json({ error: "Unable to register user." });
   }
 });
 

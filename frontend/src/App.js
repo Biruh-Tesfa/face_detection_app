@@ -41,7 +41,7 @@ componentDidMount() {
         name: savedUser.name,
         email: savedUser.email,
         entrie: savedUser.entrie,
-        joined: savedUser.joined
+          joined: savedUser.joined
       },
       route: "home"
     });

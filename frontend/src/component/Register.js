@@ -51,11 +51,25 @@ onSubmitRegister =()=>{
       password:this.state.password,
       name:this.state.name
     })
-  }).then((response) => {
-        if (!response.ok) {
-          throw new Error("register failed");
+  }).then(async (response) => {
+        const responseText = await response.text();
+        let data = {};
+
+        if (responseText) {
+          try {
+            data = JSON.parse(responseText);
+          } catch {
+            data = {};
+          }
         }
-        return response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || `Registration failed (${response.status}).`
+          );
+        }
+
+        return data;
       })
     .then(data=>{
       if(data.id){
@@ -71,7 +85,9 @@ onSubmitRegister =()=>{
         console.error("Error register:", error);
 
         this.setState({
-          error: "Email is taken. Please use another email.",
+          error: error.message === "Failed to fetch"
+            ? "Cannot reach the registration service. Please try again later."
+            : error.message || "Unable to register. Please try again.",
           loading: false
         });
       });
